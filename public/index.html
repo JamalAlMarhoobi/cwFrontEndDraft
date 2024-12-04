@@ -38,7 +38,7 @@
             <div v-if="showCurriculum" class="curriculum-section">
                 <div v-for="curriculum in sortedCurriculums" :key="curriculum.id" class="curriculum-item">
                     <figure class="curriculum-image-wrapper">
-                        <img v-bind:src="curriculum.image" class="curriculum-image" alt="curriculum image">
+                        <img v-bind:src="imageLink(curriculum.image)" class="curriculum-image" alt="curriculum image">
                     </figure>
                     <h2 v-text="curriculum.subject"></h2>
                     <p v-html="curriculum.location"></p>

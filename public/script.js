@@ -170,6 +170,10 @@ var webstore = new Vue({
         sortCurriculums() {
             // Triggering reactivity by updating the curriculums list.
             this.curriculums = [...this.curriculums];
+        },
+
+        imageLink(image) {
+            return `http://localhost:3000/images/${image}`;
         }
     },
     computed: {
