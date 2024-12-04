@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnify</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <h1><a href="#" v-on:click="goHome">{{ sitename }}</a></h1>
+            <div class="header-right">
+                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" class="search-input"
+                    v-if="showCurriculum" />
+                <select v-model="sortOption" @change="sortCurriculums" class="sort-dropdown" v-if="showCurriculum">
+                    <option value="">Sort by</option>
+                    <option value="subjectAsc">Curriculum: Asc</option>
+                    <option value="subjectDesc">Curriculum: Desc</option>
+                    <option value="locationAsc">Location: Asc</option>
+                    <option value="locationDesc">Location: Desc</option>
+                    <option value="priceAsc">Price: Low to High</option>
+                    <option value="priceDesc">Price: High to Low</option>
+                    <option value="ratingAsc">Rating: Low to High</option>
+                    <option value="ratingDesc">Rating: High to Low</option>
+                </select>
+                <button v-if="cart.length > 0 && !orderSubmitted" v-on:click="showCheckout" class="checkout-button">
+                    <span class="fa-solid fa-cart-plus"></span> Checkout ({{ cartItemCount }})
+                </button>
+            </div>
+        </header>
+        <main>
+            <div v-if="showCurriculum" class="curriculum-section">
+                <div v-for="curriculum in sortedCurriculums" :key="curriculum.id" class="curriculum-item">
+                    <figure class="curriculum-image-wrapper">
+                        <img v-bind:src="curriculum.image" class="curriculum-image" alt="curriculum image">
+                    </figure>
+                    <h2 v-text="curriculum.subject"></h2>
+                    <p v-html="curriculum.location"></p>
+                    <p>Price: {{ curriculum.price.toFixed(2) }} AED</p>
+                    <span v-if="curriculum.spaces - cartCount(curriculum.id) > 0">
+                        Available Spaces: {{ curriculum.spaces - cartCount(curriculum.id) }}
+                    </span>
+                    <span v-else class="out-of-stock-message">No spaces available</span>
+                    <button v-on:click="addToCart(curriculum)" v-if="canAddToCart(curriculum)" class="add-to-cart">
+                        Add to cart
+                    </button>
+                    <button disabled="disabled" v-else class="out-of-stock">
+                        Add to cart
+                    </button>
+                    <div class="rating">
+                        <span v-for="n in curriculum.rating">★</span>
+                        <span v-for="n in 5 - curriculum.rating">☆</span>
+                    </div>
+                </div>
+            </div>
+            <div v-else>
+                <div class="checkout-container">
+                    <div v-if="!orderSubmitted">
+                        <h2>Checkout</h2>
+                        <div v-if="cart.length" class="checkout-grid">
+                            <div v-for="item in cartItems" :key="item.id" class="cart-item">
+                                <figure class="cart-image-wrapper">
+                                    <img v-bind:src="item.image" class="cart-image" alt="curriculum image">
+                                </figure>
+                                <h3 class="cart-item-title" v-text="item.subject"></h3>
+                                <p>Location: {{ item.location }}</p>
+                                <p>
+                                    Quantity: {{ cartCount(item.id) }}
+                                <div class="quantity-controls">
+                                    <button v-on:click="decreaseQuantity(item)" v-if="cartCount(item.id) > 1"
+                                        class="quantity-btn">-</button>
+                                    <button v-on:click="increaseQuantity(item)" class="quantity-btn">+</button>
+                                </div>
+                                </p>
+                                <p>Total: {{ (item.price * cartCount(item.id)).toFixed(2) }} AED</p>
+                                <button v-on:click="removeFromCart(item)" class="delete-button">Remove</button>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <p class="empty-cart-message">Your cart is empty. Add items to continue.</p>
+                        </div>
+                        <div v-if="cart.length" class="total-summary">
+                            <h3>Total: {{ totalCartPrice.toFixed(2) }} AED</h3>
+                        </div>
+                        <div v-if="cart.length" class="customer-info">
+                            <h3>Customer Information</h3>
+                            <form @submit.prevent="submitForm">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input v-model.trim="order.firstName" @input="validateFirstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input v-model.trim="order.lastName" @input="validateLastName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone No.</label>
+                                    <input v-model.number.trim="order.phoneNumber" @input="validatePhoneNumber"
+                                        maxlength="10" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input v-model.trim="order.address" @input="validateAddress" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Town</label>
+                                    <input v-model.trim="order.town" @input="validateTown" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Emirate</label>
+                                    <select v-model="order.emirate" required>
+                                        <option disabled value="">Select Emirate</option>
+                                        <option v-for="(emirate, key) in emirates" :value="emirate">{{ emirate }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Zip Code</label>
+                                    <input v-model.number.trim="order.zip" @input="validateZip" required>
+                                </div>
+                                <button :disabled="!isFormComplete" class="place-order">Place Order</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div v-else class="order-confirmation">
+                        <h2>Thank You, {{ order.firstName }}!</h2>
+                        <p>Your order has been placed successfully.</p>
+                        <p>You will receive a reminder sms 1 day before.</p>
+                        <ul>
+                            <li v-for="item in cartItems" :key="item.id">
+                                {{ item.subject }} - Quantity: {{ cartCount(item.id) }} - Total: {{ (item.price *
+                                cartCount(item.id)).toFixed(2) }} AED
+                            </li>
+                        </ul>
+                        <h3>Total Price: {{ totalCartPrice.toFixed(2) }} AED</h3>
+                        <button class="return-home" @click="goHome">Back to Home</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="curriculums.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
