@@ -26,7 +26,7 @@ var webstore = new Vue({
     },
     methods: {
         fetchCurriculums() {
-            fetch('http://localhost:3000/collection/curriculums')
+            fetch('https://cwbackenddraft.onrender.com/collection/curriculums')
                 .then(response => response.json())
                 .then(data => {
                     this.curriculums = data;
@@ -133,7 +133,7 @@ var webstore = new Vue({
                     grandTotal: grandTotal
                 };
 
-                fetch('http://localhost:3000/collection/orders', {
+                fetch('https://cwbackenddraft.onrender.com/collection/orders', {
                     method: 'POST', // HTTP method
                     headers: {
                         'Content-Type': 'application/json', // Set content type
@@ -173,7 +173,7 @@ var webstore = new Vue({
         },
 
         imageLink(image) {
-            return `http://localhost:3000/images/${image}`;
+            return `https://cwbackenddraft.onrender.com/images/${image}`;
         }
     },
     computed: {
