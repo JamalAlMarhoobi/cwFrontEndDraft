@@ -172,9 +172,9 @@ var webstore = new Vue({
             this.curriculums = [...this.curriculums];
         },
 
-        /*imageLink(image) {
-            return `https://cwbackenddraft.onrender.com/images/${image}`;
-        }*/
+        imageLink(image) {
+            return `https://cwbackenddraft.onrender.com/${image}`;
+        }
     },
     computed: {
         cartItemCount() {
