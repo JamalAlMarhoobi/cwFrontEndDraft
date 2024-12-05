@@ -173,7 +173,7 @@ var webstore = new Vue({
         },
 
         imageLink(image) {
-            return `https://cwbackenddraft.onrender.com/${image}`;
+            return `https://cwbackenddraft.onrender.com/images/${image}`;
         }
     },
     computed: {
