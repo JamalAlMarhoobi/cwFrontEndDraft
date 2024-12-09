@@ -16,8 +16,7 @@
         <header>
             <h1><a href="#" v-on:click="goHome">{{ sitename }}</a></h1>
             <div class="header-right">
-                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" class="search-input"
-                    v-if="showCurriculum" />
+                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" class="search-input" v-if="showCurriculum" />
                 <select v-model="sortOption" @change="sortCurriculums" class="sort-dropdown" v-if="showCurriculum">
                     <option value="">Sort by</option>
                     <option value="subjectAsc">Curriculum: Asc</option>
@@ -29,8 +28,8 @@
                     <option value="ratingAsc">Rating: Low to High</option>
                     <option value="ratingDesc">Rating: High to Low</option>
                 </select>
-                <button v-if="cart.length > 0 && !orderSubmitted" v-on:click="showCheckout" class="checkout-button">
-                    <span class="fa-solid fa-cart-plus"></span> Checkout ({{ cartItemCount }})
+                <button v-if="cart.length > 0 && !orderSubmitted" v-on:click="toggleCheckout" class="checkout-button">
+                    <span class="fa-solid fa-cart-plus"></span> {{ showCurriculum ? 'Checkout' : 'Back to Curriculums' }} ({{ cartItemCount }})
                 </button>
             </div>
         </header>

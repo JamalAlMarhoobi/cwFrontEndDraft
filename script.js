@@ -36,6 +36,10 @@ var webstore = new Vue({
                 });
         },
 
+        toggleCheckout() {
+            this.showCurriculum = !this.showCurriculum; // Toggle between curriculums and checkout
+        },
+
         validateFirstName() {
             if (!/^[a-zA-Z\s]+$/.test(this.order.firstName)) this.order.firstName = '';
         },
