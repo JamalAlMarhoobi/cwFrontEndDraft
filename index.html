@@ -177,7 +177,16 @@
                                     <label>Zip Code</label>
                                     <input v-model.number.trim="order.zip" @input="validateZip" required>
                                 </div>
-                                <button :disabled="!isFormComplete" class="place-order">Place Order</button>
+                                
+                                <!-- Add to cart button -->
+                                <button v-if="isFormComplete" class="place-order">
+                                    Place Order
+                                </button>
+            
+                                <!-- Disabled button if form is not complete -->
+                                <button v-else disabled class="out-of-stock">
+                                    Place Order
+                                </button>
                             </form>
                         </div>
                     </div>
