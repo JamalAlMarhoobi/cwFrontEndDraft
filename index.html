@@ -16,20 +16,23 @@
         <header>
             <h1><a href="#" v-on:click="goHome">{{ sitename }}</a></h1>
             <div class="header-right">
-                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" class="search-input" v-if="showCurriculum" />
-                <select v-model="sortOption" @change="sortCurriculums" class="sort-dropdown" v-if="showCurriculum">
+                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" class="search-input"
+                    v-if="showCurriculum" />
+                <select v-model="sortField" @change="sortCurriculums" class="sort-dropdown" v-if="showCurriculum">
                     <option value="">Sort by</option>
-                    <option value="subjectAsc">Curriculum: Asc</option>
-                    <option value="subjectDesc">Curriculum: Desc</option>
-                    <option value="locationAsc">Location: Asc</option>
-                    <option value="locationDesc">Location: Desc</option>
-                    <option value="priceAsc">Price: Low to High</option>
-                    <option value="priceDesc">Price: High to Low</option>
-                    <option value="ratingAsc">Rating: Low to High</option>
-                    <option value="ratingDesc">Rating: High to Low</option>
+                    <option value="subject">Curriculum</option>
+                    <option value="location">Location</option>
+                    <option value="price">Price</option>
+                    <option value="rating">Rating</option>
+                </select>
+                <select v-model="sortDirection" @change="sortCurriculums" class="sort-dropdown" v-if="showCurriculum">
+                    <option value="">Order by</option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
                 </select>
                 <button v-if="cart.length > 0 && !orderSubmitted" v-on:click="toggleCheckout" class="checkout-button">
-                    <span class="fa-solid fa-cart-plus"></span> {{ showCurriculum ? 'Checkout' : 'Back to Curriculums' }} ({{ cartItemCount }})
+                    <span class="fa-solid fa-cart-plus"></span> {{ showCurriculum ? 'Checkout' : 'Back to Curriculums'
+                    }} ({{ cartItemCount }})
                 </button>
             </div>
         </header>

@@ -21,7 +21,8 @@ var webstore = new Vue({
             SHA: 'Sharjah',
             RAK: 'Ras Al Khaimah'
         },
-        sortOption: '',
+        sortField: '', // The field to sort by
+        sortDirection: '', // The sort direction (asc or desc)
         searchQuery: ''
     },
     methods: {
@@ -38,6 +39,11 @@ var webstore = new Vue({
 
         toggleCheckout() {
             this.showCurriculum = !this.showCurriculum; // Toggle between curriculums and checkout
+        },
+
+        sortCurriculums() {
+            // Trigger sorting when sortField or sortDirection changes
+            this.curriculums = [...this.curriculums];
         },
 
         validateFirstName() {
@@ -171,11 +177,6 @@ var webstore = new Vue({
             return this.cart.filter(itemId => itemId === id).length;
         },
 
-        sortCurriculums() {
-            // Triggering reactivity by updating the curriculums list.
-            this.curriculums = [...this.curriculums];
-        },
-
         imageLink(image) {
             return `https://cwbackenddraft.onrender.com/images/${image}`;
         }
@@ -213,25 +214,24 @@ var webstore = new Vue({
             );
         },
         sortedCurriculums() {
-            let filtered = this.filteredCurriculums;
+            let filtered = this.curriculums.filter(curriculum =>
+                curriculum.subject.toLowerCase().includes(this.searchQuery.toLowerCase())
+            );
 
-            if (this.sortOption === "subjectAsc") {
-                filtered.sort((a, b) => a.subject.localeCompare(b.subject));
-            } else if (this.sortOption === "subjectDesc") {
-                filtered.sort((a, b) => b.subject.localeCompare(a.subject));
-            } else if (this.sortOption === "locationAsc") {
-                filtered.sort((a, b) => a.location.localeCompare(b.location));
-            } else if (this.sortOption === "locationDesc") {
-                filtered.sort((a, b) => b.location.localeCompare(a.location));
-            } else if (this.sortOption === "priceAsc") {
-                filtered.sort((a, b) => a.price - b.price);
-            } else if (this.sortOption === "priceDesc") {
-                filtered.sort((a, b) => b.price - a.price);
-            } else if (this.sortOption === "ratingAsc") {
-                filtered.sort((a, b) => a.rating - b.rating);
-            } else if (this.sortOption === "ratingDesc") {
-                filtered.sort((a, b) => b.rating - a.rating);
+            if (this.sortField) {
+                filtered.sort((a, b) => {
+                    let valueA = a[this.sortField];
+                    let valueB = b[this.sortField];
+
+                    // Compare numeric or string values
+                    if (typeof valueA === 'string') valueA = valueA.toLowerCase();
+                    if (typeof valueB === 'string') valueB = valueB.toLowerCase();
+
+                    const comparison = valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+                    return this.sortDirection === 'desc' ? -comparison : comparison;
+                });
             }
+
             return filtered;
         }
     },
