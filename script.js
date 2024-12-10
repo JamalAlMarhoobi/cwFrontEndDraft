@@ -1,8 +1,12 @@
 var webstore = new Vue({
+    // Bind Vue instance to the HTML element with id="app"
     el: '#app',
     data: {
-        showCurriculum: true,
-        sitename: 'LEARNIFY',
+        // State variables for controlling the app's behavior
+        showCurriculum: true, // Determines if the curriculum or checkout page is displayed
+        sitename: 'LEARNIFY', // App name displayed in the header
+
+        // Order details
         order: {
             firstName: '',
             lastName: '',
@@ -12,40 +16,49 @@ var webstore = new Vue({
             zip: '',
             emirate: ''
         },
-        orderSubmitted: false,
-        curriculums: [],
-        cart: [],
+
+        orderSubmitted: false, // Tracks if the order has been submitted
+        curriculums: [], // Holds the list of curriculums fetched from the server
+        cart: [], // Tracks the IDs of items added to the cart
+
+        // Emirate dropdown options
         emirates: {
             AD: 'Abu Dhabi',
             DXB: 'Dubai',
             SHA: 'Sharjah',
             RAK: 'Ras Al Khaimah'
         },
-        sortField: '', // The field to sort by
-        sortDirection: '', // The sort direction (asc or desc)
-        searchQuery: ''
+
+        // Sorting and searching
+        sortField: '', // Field to sort by (e.g., subject, price)
+        sortDirection: '', // Sorting order (asc or desc)
+        searchQuery: '' // Query string for filtering curriculums
     },
     methods: {
+        // Fetch the list of curriculums from the server
         fetchCurriculums() {
             fetch('https://cwbackenddraft.onrender.com/collection/curriculums')
                 .then(response => response.json())
                 .then(data => {
-                    this.curriculums = data;
+                    this.curriculums = data; // Update the curriculums array
                 })
                 .catch(error => {
-                    console.error("Error fetching curriculums:", error);
+                    console.error("Error fetching curriculums:", error); // Log errors
                 });
         },
 
+        // Toggle between curriculum and checkout views
         toggleCheckout() {
-            this.showCurriculum = !this.showCurriculum; // Toggle between curriculums and checkout
+            this.showCurriculum = !this.showCurriculum;
         },
 
+        // Sort curriculums based on the selected field and direction
         sortCurriculums() {
-            // Trigger sorting when sortField or sortDirection changes
+            // Trigger sorting by reassigning the curriculums array
             this.curriculums = [...this.curriculums];
         },
 
+        // Validation methods for form fields
         validateFirstName() {
             if (!/^[a-zA-Z\s]+$/.test(this.order.firstName)) this.order.firstName = '';
         },
@@ -59,6 +72,7 @@ var webstore = new Vue({
             if (!/^\d{0,10}$/.test(this.order.zip)) this.order.zip = '';
         },
 
+        // Add a curriculum to the cart
         addToCart(curriculum) {
             if (this.cartCount(curriculum.id) < curriculum.spaces) {
                 this.cart.push(curriculum.id);
@@ -67,38 +81,15 @@ var webstore = new Vue({
             }
         },
 
-        showCheckout() {
-            if (this.cart.length === 0) {
-                alert("Please add a curriculum to your cart before proceeding to checkout.");
-                return;
-            }
-            this.showCurriculum = false;
+        // Remove a curriculum from the cart
+        removeFromCart(item) {
+            this.cart = this.cart.filter(id => id !== item.id);
         },
 
-        goHome() {
-            this.showCurriculum = true;
-            this.orderSubmitted = false;
-
-            // Reset cart and order details
-            this.cart = [];
-            this.order = {
-                firstName: '',
-                lastName: '',
-                phoneNumber: '',
-                address: '',
-                town: '',
-                zip: '',
-                emirate: ''
-            };
-
-            // Reload curriculums
-            this.fetchCurriculums();
-        },
-
+        // Adjust the quantity of a curriculum in the cart
         increaseQuantity(item) {
             const currentCount = this.cartCount(item.id);
-            const availableSpaces = item.spaces - currentCount;
-            if (availableSpaces > 0) {
+            if (item.spaces - currentCount > 0) {
                 this.cart.push(item.id);
             } else {
                 alert('No more spaces available for this curriculum.');
@@ -110,88 +101,97 @@ var webstore = new Vue({
                 this.cart.splice(index, 1);
             }
         },
-        removeFromCart(item) {
-            this.cart = this.cart.filter(id => id !== item.id);
-        },
 
+        // Submit the order
         submitForm() {
             if ((this.orderSubmitted = true) && this.isFormComplete) {
-                // Deduce item details
-                const orderedItems = this.cartItems.map(item => {
-                    const quantity = this.cartCount(item.id);
-                    return {
-                        id: item.id,
-                        subject: item.subject,
-                        location: item.location,
-                        price: item.price,
-                        quantity,
-                        total: item.price * quantity // Individual total
-                    }
-                });
-                // Calculate the grand total
+                // Prepare order details
+                const orderedItems = this.cartItems.map(item => ({
+                    id: item.id,
+                    subject: item.subject,
+                    location: item.location,
+                    price: item.price,
+                    quantity: this.cartCount(item.id),
+                    total: item.price * this.cartCount(item.id)
+                }));
+
+                // Calculate the total price of the order
                 const grandTotal = orderedItems.reduce((sum, item) => sum + item.total, 0);
 
                 const newOrder = {
-                    firstName: this.order.firstName,
-                    lastName: this.order.lastName,
-                    phoneNumber: this.order.phoneNumber,
-                    address: this.order.address,
-                    town: this.order.town,
-                    emirate: this.order.emirate,
-                    zip: this.order.zip,
-                    orderedItems: orderedItems,
-                    grandTotal: grandTotal
+                    ...this.order,
+                    orderedItems,
+                    grandTotal
                 };
 
+                // Send order to the server
                 fetch('https://cwbackenddraft.onrender.com/collection/orders', {
-                    method: 'POST', // HTTP method
-                    headers: {
-                        'Content-Type': 'application/json', // Set content type
-                    },
-                    body: JSON.stringify(newOrder), // Stringify the order object
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newOrder)
                 })
                     .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to submit the order');
-                        }
+                        if (!response.ok) throw new Error('Failed to submit the order');
                         return response.json();
                     })
                     .then(responseJSON => {
                         console.log('Order submitted successfully:', responseJSON);
-                        this.orderSubmitted = true; // Show success message
-
-                        // Refresh curriculums to reflect updated spaces
-                        this.fetchCurriculums();
+                        this.orderSubmitted = true;
+                        this.fetchCurriculums(); // Refresh curriculums to update spaces
                     })
                     .catch(error => {
                         console.error('Error submitting order:', error);
                     });
+
+                alert('Order successfully placed!');
             }
-            alert('Order successfully placed!');
         },
 
+        // Reset to the home view and clear data
+        goHome() {
+            this.showCurriculum = true;
+            this.orderSubmitted = false;
+            this.cart = [];
+            this.order = {
+                firstName: '',
+                lastName: '',
+                phoneNumber: '',
+                address: '',
+                town: '',
+                zip: '',
+                emirate: ''
+            };
+            this.fetchCurriculums();
+        },
+
+        // Helper functions
         canAddToCart(curriculum) {
             return curriculum.spaces > this.cartCount(curriculum.id);
         },
         cartCount(id) {
             return this.cart.filter(itemId => itemId === id).length;
         },
-
         imageLink(image) {
             return `https://cwbackenddraft.onrender.com/images/${image}`;
         }
     },
     computed: {
+        // Count of items in the cart
         cartItemCount() {
-            return this.cart.length || "";
+            return this.cart.length || '';
         },
+
+        // List of items in the cart with details
         cartItems() {
             return this.curriculums.filter(item => this.cart.includes(item.id));
         },
+
+        // Total price of items in the cart
         totalCartPrice() {
-            return this.cartItems.reduce((total, item) => total + (item.price * this.cartCount(item.id)), 0);
+            return this.cartItems.reduce((total, item) => total + item.price * this.cartCount(item.id), 0);
         },
 
+        // Check if the order form is complete
         isFormComplete() {
             return (
                 this.order.firstName &&
@@ -205,25 +205,23 @@ var webstore = new Vue({
             );
         },
 
+        // Filter curriculums based on the search query
         filteredCurriculums() {
-            const query = this.searchQuery.toLowerCase();
-            return this.curriculums.filter(
-                curriculum =>
-                    curriculum.subject.toLowerCase().includes(query) ||
-                    curriculum.location.toLowerCase().includes(query)
+            return this.curriculums.filter(curriculum =>
+                curriculum.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                curriculum.location.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
         },
+
+        // Sort and filter curriculums based on search, sort field, and sort direction
         sortedCurriculums() {
-            let filtered = this.curriculums.filter(curriculum =>
-                curriculum.subject.toLowerCase().includes(this.searchQuery.toLowerCase())
-            );
+            let filtered = this.filteredCurriculums;
 
             if (this.sortField) {
                 filtered.sort((a, b) => {
                     let valueA = a[this.sortField];
                     let valueB = b[this.sortField];
 
-                    // Compare numeric or string values
                     if (typeof valueA === 'string') valueA = valueA.toLowerCase();
                     if (typeof valueB === 'string') valueB = valueB.toLowerCase();
 
@@ -236,6 +234,6 @@ var webstore = new Vue({
         }
     },
     mounted() {
-        this.fetchCurriculums(); // Fetch data on load
+        this.fetchCurriculums(); // Load curriculums when the app is initialized
     }
 });
