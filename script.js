@@ -58,6 +58,26 @@ var webstore = new Vue({
             this.curriculums = [...this.curriculums];
         },
 
+        // Fetch search results from the backend
+        searchCurriculums() {
+            fetch(`https://cwbackenddraft.onrender.com/search?query=${this.searchQuery}`)
+                .then(response => response.json())
+                .then(data => {
+                    this.curriculums = data; // Update the curriculums list with search results
+                })
+                .catch(error => {
+                    console.error("Error fetching search results:", error);
+                });
+        },
+        // Call this method whenever the search query changes
+        onSearchInput() {
+            if (this.searchQuery.trim()) {
+                this.searchCurriculums(); // Trigger search if the query is not empty
+            } else {
+                this.fetchCurriculums(); // Reset to all curriculums if the query is cleared
+            }
+        },
+
         // Validation methods for form fields
         validateFirstName() {
             if (!/^[a-zA-Z\s]+$/.test(this.order.firstName)) this.order.firstName = '';
@@ -206,12 +226,12 @@ var webstore = new Vue({
         },
 
         // Filter curriculums based on the search query
-        filteredCurriculums() {
+        /*filteredCurriculums() {
             return this.curriculums.filter(curriculum =>
                 curriculum.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                 curriculum.location.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
-        },
+        },*/
 
         // Sort and filter curriculums based on search, sort field, and sort direction
         sortedCurriculums() {

@@ -29,8 +29,8 @@
             </h1>
             <div class="header-right">
                 <!-- Search input field -->
-                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" class="search-input"
-                    v-if="showCurriculum" />
+                <input type="text" placeholder="Search curriculum..." v-model="searchQuery" @input="onSearchInput"
+                    class="search-input" v-if="showCurriculum" />
 
                 <!-- Dropdown for sort fields -->
                 <select v-model="sortField" @change="sortCurriculums" class="sort-dropdown" v-if="showCurriculum">
@@ -177,12 +177,12 @@
                                     <label>Zip Code</label>
                                     <input v-model.number.trim="order.zip" @input="validateZip" required>
                                 </div>
-                                
+
                                 <!-- Add to cart button -->
                                 <button v-if="isFormComplete" class="place-order">
                                     Checkout
                                 </button>
-            
+
                                 <!-- Disabled button if form is not complete -->
                                 <button v-else disabled class="out-of-stock">
                                     Checkout
