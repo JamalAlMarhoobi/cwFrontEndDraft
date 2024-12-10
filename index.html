@@ -51,7 +51,7 @@
                 <!-- Toggle button for checkout and curriculum -->
                 <button v-if="cart.length > 0 && !orderSubmitted" v-on:click="toggleCheckout" class="checkout-button">
                     <span class="fa-solid fa-cart-plus"></span>
-                    {{ showCurriculum ? 'Checkout' : 'Back to Curriculums' }}
+                    {{ showCurriculum ? 'View Cart' : 'Back to Curriculums' }}
                     ({{ cartItemCount }})
                 </button>
             </div>
@@ -180,12 +180,12 @@
                                 
                                 <!-- Add to cart button -->
                                 <button v-if="isFormComplete" class="place-order">
-                                    Place Order
+                                    Checkout
                                 </button>
             
                                 <!-- Disabled button if form is not complete -->
                                 <button v-else disabled class="out-of-stock">
-                                    Place Order
+                                    Checkout
                                 </button>
                             </form>
                         </div>
