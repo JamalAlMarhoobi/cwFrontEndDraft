@@ -226,12 +226,12 @@ var webstore = new Vue({
         },
 
         // Filter curriculums based on the search query
-        /*filteredCurriculums() {
+        filteredCurriculums() {
             return this.curriculums.filter(curriculum =>
                 curriculum.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                 curriculum.location.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
-        },*/
+        },
 
         // Sort and filter curriculums based on search, sort field, and sort direction
         sortedCurriculums() {
