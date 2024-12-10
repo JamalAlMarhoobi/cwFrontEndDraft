@@ -1,4 +1,4 @@
-# cwFrontEndDraft
+# CW Front-End
 Welcome to the official Learnify Webpage Front-End Code where you can find important information about the code, repository links, the Official webpage link and the render.com link where the server is being hosted
 
 # Github Front-End Repository Link
